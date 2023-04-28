@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  # prometheus:
+  #   image: prom/prometheus
+  #   user: "1000"
+  #   restart: always
+  #   container_name: prometheus
+  #   volumes:
+  #     - $PWD/conf/prometheus:/etc/prometheus/
+  #     - $PWD/data/prometheus:/prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+  #     - '--web.console.templates=/usr/share/prometheus/consoles'
+  #   ports:
+  #     - 9000:9090
+  #   links:
+  #     - grafana
+  #     - influxdb
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+
+  # influxdb:
+  #   image: influxdb:alpine
+  #   restart: always
+  #   container_name: influxdb
+  #   ports:
+  #     - "9086:8086"
+  #   volumes:
+  #     - $PWD/data/influxdb:/var/lib/influxdb
+  #   env_file:
+  #     - $PWD/conf/influxdb/envfile
+
+  grafana:
+    image: grafana/grafana-oss
+    restart: always
+    container_name: grafana
+    ports:
+      - "9030:3000"
+    volumes:
+       - $PWD/data/grafana:/var/lib/grafana
+       - $PWD/conf/grafana:/etc/grafana
+       - $PWD/logs/grafana:/var/log/grafana
+       - $PWD/data/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - "GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel"
+
+  postgres:
+    image: postgres:14-alpine
+    restart: always
+    container_name: postgres
+    ports:
+      - "9892:5432"
+    environment:
+      - POSTGRES_PASSWORD=foobarpgpass
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - $PWD/data/postgres:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    container_name: redis
+    ports:
+      - "9379:6379"
+
